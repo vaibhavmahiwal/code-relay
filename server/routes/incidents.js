@@ -4,7 +4,6 @@ import { io } from '../index.js';
 
 const router = express.Router();
 
-// GET all incidents sorted by severity desc
 router.get('/', async (req, res) => {
   try {
     const incidents = await Incident.find().sort({ severity: -1, createdAt: -1 });
@@ -14,18 +13,16 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST new incident (citizen submits)
 router.post('/', async (req, res) => {
   try {
     const incident = await Incident.create(req.body);
-    io.emit('new_incident', incident);     // real-time push to all responders
+    io.emit('new_incident', incident);
     res.status(201).json(incident);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-// PATCH update status (responder assigns/resolves)
 router.patch('/:id/status', async (req, res) => {
   try {
     const { status, assignedTo } = req.body;
@@ -34,7 +31,7 @@ router.patch('/:id/status', async (req, res) => {
       { status, assignedTo },
       { new: true }
     );
-    io.emit('incident_updated', incident);  // real-time push to citizen + responder
+    io.emit('incident_updated', incident);
     res.json(incident);
   } catch (err) {
     res.status(400).json({ error: err.message });

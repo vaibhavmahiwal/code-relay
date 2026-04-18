@@ -5,6 +5,8 @@ import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import incidentRoutes from './routes/incidents.js';
+import authRoutes from './routes/auth.js';
+import aiRoutes from './routes/ai.js';
 
 dotenv.config();
 
@@ -18,7 +20,8 @@ export const io = new Server(httpServer, {
 app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
 app.use('/api/incidents', incidentRoutes);
-
+app.use('/api/auth', authRoutes);
+app.use('/api/ai', aiRoutes);
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
 });
