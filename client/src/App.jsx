@@ -151,10 +151,17 @@ export default function App() {
           <span style={{ color: '#334155' }}>|</span>
           <span>SOCKET.IO + MONGODB</span>
         </div>
-        <h1 style={{ fontSize: 62, fontWeight: 900, margin: '0 0 20px', lineHeight: 1.1, letterSpacing: -1 }}>
-          When Seconds Matter,<br />
-          <span style={{ color: '#dc2626' }}>Every Detail Counts.</span>
-        </h1>
+        <h1 style={{ 
+  fontSize: 62, 
+  fontWeight: 900, 
+  margin: '0 0 20px', 
+  lineHeight: 1.1, 
+  letterSpacing: -1,
+  color: '#ffffff' // This makes "When Seconds Matter," pure white
+}}>
+  When Seconds Matter,<br />
+  <span style={{ color: '#dc2626' }}>Every Detail Counts.</span> 
+</h1>
         <p style={{ color: '#94a3b8', fontSize: 18, maxWidth: 580, margin: '0 auto 16px', lineHeight: 1.8 }}>
           Rakshak is a two-sided emergency management platform — citizens report incidents with live GPS in seconds, AI validates severity, responders triage and dispatch in real time.
         </p>
@@ -179,7 +186,7 @@ export default function App() {
       </div>
 
       {/* Stats bar */}
-      <div style={{ display: 'flex', maxWidth: 880, margin: '0 auto 80px', border: '1px solid #1e293b', borderRadius: 14, overflow: 'hidden' }}>
+      <div style={{ display: 'flex', maxWidth: 1200, margin: '0 auto 80px', border: '1px solid #1e293b', borderRadius: 14, overflow: 'hidden' }}>
         {[
           { value: '< 1s',    label: 'Report → Dashboard' },
           { value: '5',       label: 'Severity Levels' },
@@ -195,7 +202,7 @@ export default function App() {
       </div>
 
       {/* How it works */}
-      <div style={{ maxWidth: 1000, margin: '0 auto 80px', padding: '0 24px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto 80px', padding: '0 24px' }}>
         <h2 style={{ textAlign: 'center', fontSize: 32, fontWeight: 800, marginBottom: 8 }}>How Rakshak Works</h2>
         <p style={{ textAlign: 'center', color: '#64748b', marginBottom: 48, fontSize: 15 }}>
           Five steps from emergency to resolution — AI-validated, real-time, end-to-end.

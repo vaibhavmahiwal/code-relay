@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
     type: String, 
     required: true, 
     unique: true,
-    trim: true // Removes accidental spaces
+    trim: true 
   },
   password: { 
     type: String, 
@@ -15,14 +15,9 @@ const userSchema = new mongoose.Schema({
     type: String, 
     enum: ['operator', 'admin'], 
     default: 'operator' 
-  },
-  lastLogin: { 
-    type: Date, 
-    default: Date.now 
   }
 }, { 
-  timestamps: true,
-  strict: false // Allows extra fields added during the relay
+  timestamps: true
 });
 
 export default mongoose.model('User', userSchema);

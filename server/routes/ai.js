@@ -1,16 +1,19 @@
 import express from 'express';
 import Groq from 'groq-sdk';
 import Incident from '../models/Incident.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const router = express.Router();
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-// 1. Auto-triage: analyze a new incident and suggest severity + response
+// 1. Auto-triage: Groq Version
 router.post('/triage', async (req, res) => {
   const { type, description, severity } = req.body;
   try {
     const chat = await groq.chat.completions.create({
-      model: 'llama3-8b-8192',
+      model: 'llama-3.1-8b-instant',
       messages: [{
         role: 'user',
         content: `You are an emergency dispatch AI. Analyze this incident and respond ONLY in this exact JSON format:
@@ -25,23 +28,24 @@ router.post('/triage', async (req, res) => {
 Incident:
 - Type: ${type}
 - Reported Severity: ${severity}/5
-- Description: "${description || 'No description provided'}"
-
-Return ONLY the JSON. No explanation, no markdown.`
+- Description: "${description || 'No description provided'}"`
       }],
       max_tokens: 300,
-      temperature: 0.3
+      temperature: 0.2 // Lower temperature for more consistent JSON
     });
 
-    const raw = chat.choices[0].message.content.trim();
-    const json = JSON.parse(raw);
-    res.json(json);
+    let raw = chat.choices[0].message.content.trim();
+    
+    // Safety check: Remove markdown backticks if AI includes them
+    raw = raw.replace(/```json|```/g, "");
+    
+    res.json(JSON.parse(raw));
   } catch (err) {
-    res.status(500).json({ error: 'AI triage failed', detail: err.message });
+    res.status(500).json({ error: 'Groq triage failed', detail: err.message });
   }
 });
 
-// 2. Incident summary: summarize all active incidents for command briefing
+// 2. Incident summary: Groq Version
 router.get('/summary', async (req, res) => {
   try {
     const incidents = await Incident.find({ status: { $ne: 'resolved' } })
@@ -53,22 +57,18 @@ router.get('/summary', async (req, res) => {
     }
 
     const incidentList = incidents.map((i, idx) =>
-      `${idx + 1}. ${i.type.toUpperCase()} | Severity ${i.severity}/5 | Status: ${i.status} | ${i.description || 'No description'}`
+      `${idx + 1}. ${i.type.toUpperCase()} | Severity ${i.severity}/5 | ${i.description}`
     ).join('\n');
 
     const chat = await groq.chat.completions.create({
-      model: 'llama3-8b-8192',
+      model: 'llama-3.1-8b-instant',
       messages: [{
         role: 'user',
-        content: `You are an emergency command center AI. Give a concise operational briefing (max 4 sentences) for the following active incidents. Focus on priority order, resource needs, and any patterns.
-
-Active Incidents:
+        content: `You are an emergency command center AI. Give a concise operational briefing (max 4 sentences) for the following incidents:
 ${incidentList}
-
-Write a plain text briefing for the duty commander. No bullet points, no markdown.`
+Write a plain text briefing for the duty commander.`
       }],
-      max_tokens: 200,
-      temperature: 0.4
+      max_tokens: 200
     });
 
     res.json({ summary: chat.choices[0].message.content.trim() });
@@ -77,21 +77,20 @@ Write a plain text briefing for the duty commander. No bullet points, no markdow
   }
 });
 
-// 3. Citizen assistant: help citizen describe their emergency
+// 3. Citizen assistant: Groq Version
 router.post('/assist', async (req, res) => {
   const { message, incidentType } = req.body;
   try {
     const chat = await groq.chat.completions.create({
-      model: 'llama3-8b-8192',
+      model: 'llama-3.1-8b-instant',
       messages: [{
         role: 'system',
-        content: `You are a calm emergency response assistant helping a citizen report a ${incidentType || 'emergency'} incident. Ask focused questions to gather: exact location details, number of people affected, immediate dangers present. Keep responses under 2 sentences. Be calm, direct, reassuring.`
+        content: `You are a calm emergency response assistant helping a citizen report a ${incidentType}. Ask focused questions about location and injuries. Keep responses under 2 sentences.`
       }, {
         role: 'user',
         content: message
       }],
-      max_tokens: 120,
-      temperature: 0.5
+      max_tokens: 150
     });
 
     res.json({ reply: chat.choices[0].message.content.trim() });

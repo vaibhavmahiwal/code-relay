@@ -63,11 +63,9 @@
   place-content: center;
   place-items: center;
   flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
+  width: 100%; /* Add this to ensure it fills the parent */
+  max-width: 1400px; /* Increase the limit */
+  margin: 0 auto;
 }
 
 #next-steps {
